@@ -5,12 +5,26 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 public class WebDriverManagers {
 
     private WebDriver driver;
-    private String browser = "chrome"; // Or load from a config file
+    private Properties configProp;
+    private FileInputStream propFilePath;
+    private String browser;
 
-    public WebDriver initializeDriver() {
+    private String getProperties(String propertyName) throws IOException {
+        configProp= new Properties();
+        propFilePath = new FileInputStream("config.properties");
+        configProp.load(propFilePath);
+        return configProp.getProperty(propertyName);
+    }
+
+    public WebDriver initializeDriver() throws IOException {
+        browser = getProperties("browser");
         if (driver == null) {
             switch (browser) {
                 case "chrome":
@@ -25,12 +39,9 @@ public class WebDriverManagers {
                     WebDriverManager.chromedriver().setup();
                     driver = new ChromeDriver();
             }
+            driver.manage().deleteAllCookies();
             driver.manage().window().maximize();
         }
-        return driver;
-    }
-
-    public WebDriver getDriver() {
         return driver;
     }
 
